@@ -139,23 +139,24 @@ Copiar código
 
 ## 7) Cómo correr el proyecto
 
-# 1) Clonar el repo
+- 1) Clonar el repo
 git clone https://github.com/<tu-usuario>/<tu-repo>.git
 cd <tu-repo>
 
-# 2) Crear y activar venv (Windows)
+- 2) Crear y activar venv (Windows)
 python -m venv .venv
 .\.venv\Scripts\activate
 
-# 3) Instalar requerimientos
+- 3) Instalar requerimientos
 pip install -r requirements.txt
 
-# 4) Crear .env (credenciales/DSN)
+- 4) Crear .env (credenciales/DSN)
 copy .env.example .env
 # <-- edita con tus datos de SQL Server / DSN
 
-# 5) Poner el Excel en data/raw/ (online_retail_II.xlsx)
-# 6) Ejecutar el pipeline orquestador
+- 5) Poner el Excel en data/raw/ (online_retail_II.xlsx)
+     
+- 6) Ejecutar el pipeline orquestador
 python .\src\run_pipeline.py
 El orquestador ejecuta:
 01_extract_clean.py → 02_load_sqlserver.py → 03_kpis_churn_sqlserver.py
@@ -190,4 +191,5 @@ La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 ├─ .env.example
 ├─ .gitignore
 └─ README.md
+
 

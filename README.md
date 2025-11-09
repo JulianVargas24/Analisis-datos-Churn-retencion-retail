@@ -139,7 +139,6 @@ Copiar código
 
 ## 7) Cómo correr el proyecto
 
-```bash
 # 1) Clonar el repo
 git clone https://github.com/<tu-usuario>/<tu-repo>.git
 cd <tu-repo>
@@ -162,17 +161,19 @@ El orquestador ejecuta:
 01_extract_clean.py → 02_load_sqlserver.py → 03_kpis_churn_sqlserver.py
 y guarda logs en logs/.
 
-8) Automatización diaria (opcional)
+---
+
+## 8) Automatización diaria (opcional)
 Se incluye run_churn_pipeline.bat para ejecutar el pipeline con el venv correcto.
 
 Programar en Programador de tareas a las 07:00 (trigger diario).
 
 La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 
-9) Estructura del repo
-bash
-Copiar código
-.
+---
+
+## 9) Estructura del repo
+
 ├─ data/
 │  └─ raw/
 │     └─ online_retail_II.xlsx
@@ -189,3 +190,4 @@ Copiar código
 ├─ .env.example
 ├─ .gitignore
 └─ README.md
+

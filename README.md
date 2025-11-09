@@ -171,6 +171,11 @@ Programar en Programador de tareas a las 07:00 (trigger diario).
 
 La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 
+<img width="1457" height="818" alt="Image" src="https://github.com/user-attachments/assets/d548e93f-6397-4184-9944-df5397edfc86" />
+<img width="1454" height="817" alt="image" src="https://github.com/user-attachments/assets/9b3cc853-655b-498a-b350-318a0dd8ddd3" />
+<img width="1455" height="814" alt="image" src="https://github.com/user-attachments/assets/ec6184b0-d9ab-45e7-a409-cf86003ae533" />
+
+
 
 
 

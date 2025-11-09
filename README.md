@@ -1,221 +1,199 @@
-JG Analítica – Churn & Retención en Retail
+JG Analítica – Churn & Retención (Retail) · Power BI + SQL Server + Python
 
-Power BI (DirectQuery) + SQL Server Express + Python (pip/venv) + Automatización con Windows Task Scheduler
+Análisis operativo de churn/retención para retail con ingesta Python → SQL Server y visualización en Power BI.
+Incluye automatización diaria con Windows Task Scheduler + .bat + venv.
 
-Objetivo: identificar clientes en alto riesgo de churn, monitorear ingresos y priorizar acciones de retención con un flujo reproducible y automatizado (ETL Python → SQL → Power BI).
-
-[🎥 Demo: ]
-
+🎬 Demo (próximamente)
+ · 📊 PBIX (opcional)
 
 1) Elevator pitch
 
-Este proyecto convierte datos de ventas (Excel/CSV) en insights accionables para equipos de negocio:
+Este proyecto convierte datos transaccionales (ventas y clientes) en decisiones accionables para retención:
 
-Scoring de riesgo por cliente (ALTO / MEDIO / BAJO) y % Alto sobre el total.
+¿Cuántos clientes están en riesgo (ALTO/MEDIO/BAJO) y cómo evoluciona el % ALTO?
 
-Ingresos 12M/6M/3M y crecimiento MoM por riesgo y país.
+¿Qué países/segmentos concentran mayor ingreso de clientes en riesgo?
 
-Top 10 clientes en riesgo alto por contribución histórica.
+¿Qué clientes específicos debería contactar hoy (ALTO riesgo) y con qué historial de compra?
 
-Mapa de ingresos por país y evolución mensual.
+¿Estamos creciendo mes a mes? ¿Qué tan volátil es el % de churn?
 
-Automatización diaria (o programable) con Python + SQL Server Express + Task Scheduler.
-
-Visualización en Power BI con DirectQuery para refrescar al instante tras la ingesta.
+Automatizado: Python limpia/ingesta el Excel a SQL Server y refrezca el modelo; Power BI queda listo para consultar.
 
 2) Arquitectura
-Excel/CSV (data/raw) 
-   └── Python (venv, pandas) ──► Limpia/normaliza (src/01_extract_clean.py)
-                                └► Carga en SQL Server (src/02_load_sqlserver.py)
-                                     └► KPIs/Churn SQL (src/03_kpis_churn_sqlserver.py)
-                                          └► Tablas DIM/FACT + snapshot
 
-SQL Server Express (vistas/tablas normalizadas)
-   └── Power BI (DirectQuery) ──► Dashboards: Resumen, Alertas ALTO, Tendencia
+Python (pandas) → SQL Server (tablas + vistas) → Power BI (modelo semántico)
+↳ Orquestación con .bat + Task Scheduler (activa venv y ejecuta pipeline).
 
-Automatización (Windows Task Scheduler)
-   └── .bat orquesta venv + run_pipeline.py (logs con timestamp en /logs)
+Fuente: Excel local (/data/raw/online_retail_II.xlsx → hojas 2010–2011).
 
+Ingesta: 01_extract_clean.py (limpieza), 02_load_sqlserver.py (carga), 03_kpis_churn_sqlserver.py (KPIs/churn).
 
-Fuente: Excel/CSV (/data/raw)
-Modelo (star-like): dim_customer_metrics (riesgo, RFM, snapshots), fact_sales/v_sales_monthly, dimensiones de calendario/cliente/país.
-Conexión: Power BI en DirectQuery (tablas clave).
-Despliegue: PBIX local (opcional publicar a Service).
+Modelo: star-like con dimensión de clientes y hechos (ventas mensuales).
+
+Conexión: Power BI con tablas modeladas (puedes usar Import o DirectQuery si mueves a un SQL remoto).
+
+Automatización: .bat + Programador de tareas (diario 07:00).
 
 3) Dashboards (¿qué preguntas responden?)
-3.1 Resumen (C-level / Comercial)
+3.1 Resumen (visión ejecutiva)
 
-¿Cuántos clientes tenemos y cuántos están en ALTO riesgo?
-KPIs: Clientes totales, Clientes ALTO, % ALTO.
+Total clientes y % ALTO (último snapshot).
 
-¿Cuánto vendimos (12M) y dónde?
-Ingresos 12M y Top país por ingresos riesgo 12M (mapa).
+Ingresos 12M y Top país ingreso riesgo 12M.
 
-¿Quiénes son los 10 clientes más críticos en riesgo alto (histórico)?
-Tabla con cliente, país, ingresos 12M, días sin comprar, frecuencia de órdenes.
+Riesgos de clientes (ALTO/MEDIO/BAJO).
 
-¿Cuándo fue la última actualización y cuál es el estado del snapshot?
-Días desde último snapshot y semáforo (actualizado/desactualizado).
+Top 10 clientes en riesgo alto + detalle de órdenes recientes.
 
-3.2 Alertas ALTO (Equipo de Retención/CRM)
+Mapa: ingresos últimos 12 meses por país.
 
-¿Cuánto dinero y órdenes representan los clientes ALTO?
-KPIs: Total monetario, Total órdenes, Promedio días sin comprar.
+Insight: prioriza ALTO con alto ingreso y muchos días sin comprar.
 
-¿Qué clientes ALTO debo contactar primero?
-Tabla de facturas detallada (fecha, SKU, descripción, cantidad, precio, total).
+3.2 Alertas ALTO (acción operativa)
 
-¿Cómo evolucionan los ingresos de clientes ALTO en el último año?
-Línea/columnas con Ingresos por mes.
+Total monetario + Total órdenes del segmento ALTO.
 
-3.3 Tendencia (Estrategia / BI)
+Promedio de días sin comprar y última compra (tabla).
 
-¿Cómo cambian los ingresos 3M/6M/12M y el crecimiento % MoM?
-KPIs y gráfico de Ingresos vs % MoM.
+Serie de ingresos del grupo ALTO (mes a mes).
 
-¿Cómo evoluciona por nivel de riesgo?
-Línea por riesgo (ALTO/BAJO/MEDIO) en el tiempo.
+Tabla de detalle (facturas, SKU, cantidad, precio unitario).
 
-¿Qué países concentran más ingresos y cómo cambian?
-Barras por país (últimos 12 meses).
+Insight: identifica clientes/itinerarios para campañas de retención inmediatas.
 
-4) KPIs clave (ejemplos)
+3.3 Tendencia (visión temporal)
 
-Clientes ALTO: COUNTROWS(FILTER(dim_customer_metrics, churn_risk="ALTO" && [snapshot_date]=max))
+Ingresos 3M / 6M / 12M (KPIs rápidos).
 
-% ALTO: DIVIDE([Clientes ALTO], [Clientes totales])
+Ingresos por país (ranking) y crecimiento % MoM.
 
-Ingresos 12M: suma de ventas en los últimos 12 meses (medida con filtro temporal).
+Ingresos por riesgo (líneas ALTO/MEDIO/BAJO).
 
-Crec. % MoM: (Ingresos_mes_actual - Ingresos_mes_anterior) / Ingresos_mes_anterior.
+Insight: detecta meses estacionales y evalúa el impacto de iniciativas de retención.
 
-Las medidas DAX exactas pueden variar según tu esquema final; el repo incluye los scripts SQL y campos base.
+4) KPIs clave (DAX / SQL)
+
+Nota: los nombres pueden variar levemente según tus tablas/medidas.
+
+% ALTO (Último)
+
+'% ALTO (Último)' =
+VAR _snap =
+  CALCULATE( MAX(dim_customer_metrics[snapshot_date]), ALL(dim_customer_metrics[snapshot_date]) )
+VAR _num =
+  CALCULATE(
+    DISTINCTCOUNT(dim_customer_metrics[customer_id]),
+    dim_customer_metrics[snapshot_date] = _snap,
+    KEEPFILTERS( VALUES(dim_customer_metrics[churn_risk]) ),
+    dim_customer_metrics[churn_risk] = "ALTO"
+  )
+VAR _den =
+  CALCULATE(
+    DISTINCTCOUNT(dim_customer_metrics[customer_id]),
+    dim_customer_metrics[snapshot_date] = _snap
+  )
+RETURN DIVIDE(_num,_den,0)
+
+
+Ingresos 12M / 6M / 3M (medidas de periodo móvil con v_sales_monthly).
+
+Clientes ALTO (distintos en último snapshot).
+
+Días desde último snapshot (control de frescura de datos).
 
 5) Stack usado
 
-Python: pandas, pyodbc/sqlalchemy; ejecución en venv (aislado).
+Power BI: KPI cards, slices, mapas, líneas/columnas; bookmarks/botones de menú.
 
-SQL Server Express: staging, normalización, KPIs de churn y snapshots.
+SQL Server: vistas/tablas normalizadas para consumo; cálculos server-side de churn y métricas.
 
-Power BI: DirectQuery para actualización inmediata; bookmarks, tooltips, selectors.
+Python (pandas, pyodbc o sqlalchemy): limpieza, ingesta, KPIs.
 
-Automatización: Windows Task Scheduler + .bat (orquesta venv + pipeline).
+Automatización: Windows Task Scheduler + .bat (activa venv y lanza pipeline).
 
-Control & Logs: logs por ejecución con timestamp en /logs.
+Control de versiones: Git/GitHub (+ .gitignore para .env, logs, datos crudos).
 
-6) Estructura del repo
-churn-retail/
-├─ .venv/                     # entorno virtual (no subir a Git)
-├─ data/
-│  ├─ raw/                    # Excel/CSV de entrada
-│  │  ├─ online_retail_II.xlsx
-│  │  └─ processed/           # (opcional) backups post-proceso
-│  └─ db/                     # scripts SQL/seed si aplica
-├─ logs/                      # logs con timestamp: pipeline_YYYYMMDD_HHMM.log
-├─ src/
-│  ├─ _conn.py                # helper de conexión a SQL (usa .env)
-│  ├─ 01_extract_clean.py     # limpieza/normalización
-│  ├─ 02_load_sqlserver.py    # carga a SQL Server
-│  ├─ 03_kpis_churn_sqlserver.py # crea métricas/tablas/vistas KPIs
-│  └─ run_pipeline.py         # orquestador Python
-├─ sql/
-│  └─ kpis_churn.sql          # SQL de KPIs/churn (si lo separas)
-├─ run_churn_pipeline.bat     # orquestador para Scheduler (activa venv + pipeline)
-├─ Dashboard.pbix             # Power BI (DirectQuery)
-└─ README.md
+6) Automatización diaria
 
-7) Configuración & ejecución local
-7.1 Requisitos
-
-Windows 10/11
-
-Python 3.10+
-
-SQL Server Express (instalado y corriendo)
-
-Power BI Desktop
-
-7.2 Variables de entorno (.env)
-
-Crea .env en la raíz (no lo subas a Git):
-
-SQLSERVER=localhost\SQLEXPRESS
-SQLDB=churn_retail
-SQLUSER=sa
-SQLPWD=********
-
-
-Si usas autenticación de Windows, ajusta el string de conexión en src/_conn.py.
-
-7.3 Instalar dependencias
-python -m venv .venv
-.venv\Scripts\pip.exe install -r requirements.txt
-
-7.4 Ejecutar pipeline (manual)
-.venv\Scripts\python.exe .\src\run_pipeline.py
-
-
-Revisa logs/pipeline_YYYYMMDD_HHMM.log → debe terminar con rc=0.
-
-Valida en SQL:
-
-SELECT MAX(snapshot_date) FROM dim_customer_metrics;
-
-8) Automatización (Windows Task Scheduler)
-
-Archivo .bat (en la raíz):
+Programador de tareas (Windows) ejecuta run_churn_pipeline.bat a las 07:00:
 
 @echo off
-setlocal enableextensions enabledelayedexpansion
+setlocal enabledelayedexpansion
 
+REM 1) Ir a la carpeta del proyecto
 cd /d "C:\Users\Julian\Desktop\churn-retail"
-set "PY=.venv\Scripts\python.exe"
 
+REM 2) Python del venv (ajusta si tu venv se llama distinto)
+set "PY=.\.venv\Scripts\python.exe"
+
+REM 3) Asegurar carpeta de logs
 if not exist "logs" mkdir logs
-set "STAMP=%date:~-4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%"
-set LOG="logs\pipeline_%STAMP%.log"
+set "XLOGDIR=logs"
+set "STAMP=%date:~6,4%-%date:~3,2%-%date:~0,2%_%time:~0,2%h%time:~3,2%m"
+set "XLOG=%XLOGDIR%\pipeline_%STAMP%.log"
 
-echo ===== INICIO %date% %time% (.venv) ===== >> %LOG%
-"%PY%" ".\src\run_pipeline.py" >> %LOG% 2>&1
-set RC=%ERRORLEVEL%
-echo ===== FIN %date% %time% (rc=%RC%) ===== >> %LOG%
+REM 4) Ejecutar orquestador Python (capturar salida en Log)
+echo ===== INICIO %date% %time% (venv) ===== >> "%XLOG%"
+"%PY%" ".\src\run_pipeline.py" >> "%XLOG%" 2>&1
+set "RC=%ERRORLEVEL%"
+echo ===== FIN %date% %time% (rc=%RC%) ===== >> "%XLOG%"
+
 exit /b %RC%
 
 
-Programador de Tareas
+Importante: el .bat activa el Python del venv y levanta los 3 scripts (01_extract_clean.py, 02_load_sqlserver.py, 03_kpis_churn_sqlserver.py) desde run_pipeline.py.
 
-Acción: cmd.exe
+7) Cómo correr local (setup rápido)
+# 1) Clonar
+git clone https://github.com/<tu-usuario>/Analisis-datos-Churn-retencion-retail.git
+cd Analisis-datos-Churn-retencion-retail
 
-Argumentos:
+# 2) Crear venv e instalar
+python -m venv .venv
+.\.venv\Scripts\pip install --upgrade pip
+.\.venv\Scripts\pip install -r requirements.txt
 
-/c "C:\Users\Julian\Desktop\churn-retail\run_churn_pipeline.bat"
+# 3) Variables de entorno
+copy .env.example .env
+# → edita .env con tus credenciales de SQL Server
+
+# 4) Dejar Excel en data/raw
+#    (online_retail_II.xlsx con hojas 2010–2011)
+
+# 5) Probar pipeline
+.\.venv\Scripts\python.exe .\src\run_pipeline.py
 
 
-Iniciar en:
+.env.example (incluido en el repo)
 
-C:\Users\Julian\Desktop\churn-retail
+SQL_SERVER=localhost\SQLEXPRESS
+SQL_DB=churn_retail
+SQL_USER=sa
+SQL_PASSWORD=tu_password
+SQL_TRUSTED=Yes      # si usas auth integrada, ajusta en tu código
 
-
-Condiciones: reintentos (3) cada 5 min, detener si excede X min (opcional).
-
-“Ejecutar tanto si el usuario inició sesión como si no” (si corresponde).
-
-Validación
-
-Revisa el historial de la tarea y el último log en /logs/.
-
-rc=0 en log ⇒ ok.
-
-Abre PBIX (DirectQuery) y verifica KPIs/visuales actualizados.
-
-9) Troubleshooting
-
-ModuleNotFoundError: pandas
-Asegúrate de que el .bat llama al python del venv (.venv\Scripts\python.exe) y que instalaste requirements.txt.
-
-Errores de rutas/espacios
-Usa rutas absolutas y comillas ("C:\…\run_pipeline.py").
-Evita emojis o caracteres especiales en print() (pueden romper cp1252 en Windows).
-
-Permisos SQL
-El usuario debe tener permisos de CREATE/INSERT/UPDATE en la BD.
+8) Estructura del repo
+churn-retail/
+├─ .venv/                 # entorno (ignorado)
+├─ data/
+│  ├─ raw/                # NO versionar Excel/CSV locales
+│  │  └─ README.md
+│  └─ processed/          # temporales (opcional)
+├─ db/                    # scripts SQL (opcional)
+├─ logs/                  # .log de pipeline (ignorado)
+├─ src/
+│  ├─ 01_extract_clean.py
+│  ├─ 02_load_sqlserver.py
+│  ├─ 03_kpis_churn_sqlserver.py
+│  ├─ run_pipeline.py
+│  └─ _conn.py            # helper de conexión
+├─ run_churn_pipeline.bat
+├─ Dashboard.pbix
+├─ Diseño resumen.png     # imágenes para README
+├─ Diseño alto.png
+├─ Diseño tendencia.png
+├─ requirements.txt
+├─ .env.example
+├─ .gitignore
+└─ README.md

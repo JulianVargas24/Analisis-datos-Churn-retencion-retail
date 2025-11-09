@@ -175,6 +175,7 @@ La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 
 ## 9) Estructura del repo
 
+.
 ├─ data/
 │  └─ raw/
 │     └─ online_retail_II.xlsx
@@ -191,5 +192,7 @@ La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 ├─ .env.example
 ├─ .gitignore
 └─ README.md
+
+
 
 

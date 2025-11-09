@@ -1,0 +1,26 @@
+# ── Secretos y entornos ───────────────────────────────
+.env
+.env.*
+.venv/
+venv/
+
+# ── Artefactos Python ─────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ── Logs y temporales ─────────────────────────────────
+logs/
+*.log
+
+# ── Datos locales (no versionar crudos) ───────────────
+data/raw/*
+!data/raw/README.md   # deja un marcador vacío para que exista la carpeta
+
+# ── Otros locales / SO / editor ───────────────────────
+db/
+ops/
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,14 @@
+# Core
+pandas==2.2.2
+numpy==1.26.4
+python-dotenv==1.0.1
+
+# SQL Server
+pyodbc==5.1.0
+SQLAlchemy==2.0.32   # (opcional, pero útil si decides usar ORM o engines)
+
+# Excel / IO
+openpyxl==3.1.5      # para leer .xlsx
+
+# Utilidad
+tqdm==4.66.4         # barras de progreso (opcional)

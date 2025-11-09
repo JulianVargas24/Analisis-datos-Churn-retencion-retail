@@ -152,7 +152,7 @@ pip install -r requirements.txt
 
 - 4) Crear .env (credenciales/DSN)
 copy .env.example .env
-# <-- edita con tus datos de SQL Server / DSN
+edita con tus datos de SQL Server / DSN
 
 - 5) Poner el Excel en data/raw/ (online_retail_II.xlsx)
      
@@ -171,27 +171,6 @@ Programar en Programador de tareas a las 07:00 (trigger diario).
 
 La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 
----
-
-## 9) Estructura del repo
-
-.
-├─ data/
-│  └─ raw/
-│     └─ online_retail_II.xlsx
-├─ db/                # scripts/SQL opcionales
-├─ logs/              # logs de ejecución
-├─ ops/               # .bat, utilidades
-├─ src/
-│  ├─ 01_extract_clean.py
-│  ├─ 02_load_sqlserver.py
-│  ├─ 03_kpis_churn_sqlserver.py
-│  └─ run_pipeline.py
-├─ Dashboard.pbix     # Power BI
-├─ requirements.txt
-├─ .env.example
-├─ .gitignore
-└─ README.md
 
 
 

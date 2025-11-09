@@ -42,3 +42,150 @@ Transformo ventas históricas en **decisiones accionables** para **reducir churn
 
 ## 2) Arquitectura
 
+Python (pandas)
+└──► SQL Server (tablas + vistas)
+└──► Power BI (modelo / KPIs / visual)
+▲
+└── validaciones y carga (pipeline)
+
+markdown
+Copiar código
+
+- **Fuente**: Excel `data/raw/online_retail_II.xlsx` (2010–2011).  
+- **Ingesta**: scripts Python `01_extract_clean.py` (limpieza) y `02_load_sqlserver.py` (carga).  
+- **KPIs/Churn**: SQL en `03_kpis_churn_sqlserver.py` (mediciones, snapshots, flags).  
+- **Modelo**: star-like con hechos mensuales y dimensión clientes.  
+- **Automatización**: `.bat` + **Programador de tareas** (diario 07:00).  
+- **Despliegue**: PBIX local (opcional Power BI Service).
+
+---
+
+## 3) Dashboards (qué preguntas responden)
+
+### 3.1 Resumen operativo
+**Preguntas**  
+- ¿Cuál es el **% de clientes en riesgo ALTO** hoy y cómo cambió vs. meses previos?  
+- ¿Qué **clientes generan más ingreso** y están **dejando de comprar**?  
+- ¿Dónde están los **ingresos de los últimos 12 meses** por país?
+
+**Aporta a la empresa**  
+- Priorización diaria de **contactos críticos** (alto ingreso + muchos días sin comprar).  
+- **Enfoque comercial**: asignación de fuerza de ventas y campañas de retención.
+
+> _Sugerencia_: coloca aquí un screenshot  
+> `![Resumen](./images/resumen.png)`
+
+---
+
+### 3.2 Alertas ALTO (acción)
+**Preguntas**  
+- ¿Cuánto **dinero** y **órdenes** se concentran en el **segmento ALTO**?  
+- ¿Cuándo fue la **última compra** de cada cliente y qué **patrón** de consumo tienen?  
+- ¿Qué **SKU** o categorías empujan la recompra?
+
+**Aporta a la empresa**  
+- Lista **operable** para CRM/Outbound (WhatsApp, email, call center).  
+- **Recomendaciones de producto** por historial para elevar conversión.
+
+> _Sugerencia_: `![Alertas ALTO](./images/alertas_alto.png)`
+
+---
+
+### 3.3 Tendencia (crecimiento y riesgo)
+**Preguntas**  
+- ¿Cómo evolucionan **Ingresos 3M/6M/12M** y el **% ALTO**?  
+- ¿Qué **países** explican el crecimiento y dónde cae la demanda?  
+- ¿Cuál es el **% de crecimiento MoM** y su **estacionalidad**?
+
+**Aporta a la empresa**  
+- Planificación de **ventas y abastecimiento** por país.  
+- **Reducción de volatilidad** anticipando caídas de recompra.
+
+> _Sugerencia_: `![Tendencia](./images/tendencia.png)`
+
+---
+
+## 4) KPIs clave
+
+- **% ALTO (Último)**: proporción de clientes en ALTO en el *último snapshot*.  
+- **Ingresos móviles**: 3M / 6M / 12M.  
+- **Clientes ALTO**: `DISTINCTCOUNT` en el último snapshot.  
+- **Días desde último snapshot**: control de frescura de datos.
+
+> Nota: se normalizan nulos (fechas/mes) para trazabilidad y consistencia de series.
+
+---
+
+## 5) Stack usado en el proyecto
+
+- **Power BI** (DAX, drill-through, tooltips, bookmarks).  
+- **SQL Server** (vistas, joins, normalización).  
+- **Python** (pandas, pyodbc/sqlalchemy).  
+- **Windows Task Scheduler** + `.bat` (automatización diaria).  
+- **GitHub** (código, documentación, versionado).
+
+---
+
+## 6) Impacto para el negocio (contratemos esto)
+
+- **–10–20% de fuga** en cohortes intervenidas (benchmarks típicos de programas de retención).  
+- **+5–12% de ingresos** por recompra en 60–90 días focalizando clientes ALTO.  
+- **Ahorro de tiempo**: pipeline diario, sin “copiar/pegar” ni procesos manuales.  
+- **Escalable**: agregar nuevas fuentes (ERP, e-commerce, CRM) sin cambiar el front.
+
+> **Rol aportado**: Data/BI Analyst que diseña el modelo de datos, arma KPIs accionables y deja la operación **automatizada** para equipo comercial & dirección.
+
+---
+
+## 7) Cómo correr el proyecto
+
+```bash
+# 1) Clonar el repo
+git clone https://github.com/<tu-usuario>/<tu-repo>.git
+cd <tu-repo>
+
+# 2) Crear y activar venv (Windows)
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# 3) Instalar requerimientos
+pip install -r requirements.txt
+
+# 4) Crear .env (credenciales/DSN)
+copy .env.example .env
+# <-- edita con tus datos de SQL Server / DSN
+
+# 5) Poner el Excel en data/raw/ (online_retail_II.xlsx)
+# 6) Ejecutar el pipeline orquestador
+python .\src\run_pipeline.py
+El orquestador ejecuta:
+01_extract_clean.py → 02_load_sqlserver.py → 03_kpis_churn_sqlserver.py
+y guarda logs en logs/.
+
+8) Automatización diaria (opcional)
+Se incluye run_churn_pipeline.bat para ejecutar el pipeline con el venv correcto.
+
+Programar en Programador de tareas a las 07:00 (trigger diario).
+
+La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
+
+9) Estructura del repo
+bash
+Copiar código
+.
+├─ data/
+│  └─ raw/
+│     └─ online_retail_II.xlsx
+├─ db/                # scripts/SQL opcionales
+├─ logs/              # logs de ejecución
+├─ ops/               # .bat, utilidades
+├─ src/
+│  ├─ 01_extract_clean.py
+│  ├─ 02_load_sqlserver.py
+│  ├─ 03_kpis_churn_sqlserver.py
+│  └─ run_pipeline.py
+├─ Dashboard.pbix     # Power BI
+├─ requirements.txt
+├─ .env.example
+├─ .gitignore
+└─ README.md

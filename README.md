@@ -173,7 +173,11 @@ La salida queda registrada en logs/pipeline_YYYY-MM-DD_HHMM.log.
 
 <img width="1457" height="818" alt="Image" src="https://github.com/user-attachments/assets/d548e93f-6397-4184-9944-df5397edfc86" />
 <img width="1454" height="817" alt="image" src="https://github.com/user-attachments/assets/9b3cc853-655b-498a-b350-318a0dd8ddd3" />
-<img width="1455" height="814" alt="image" src="https://github.com/user-attachments/assets/ec6184b0-d9ab-45e7-a409-cf86003ae533" />
+<img width="1451" height="812" alt="Image" src="https://github.com/user-attachments/assets/e1725e30-61be-4fc5-b49a-1c83c7e4a372" />
+<img width="1560" height="983" alt="Image" src="https://github.com/user-attachments/assets/c2566e77-8e3e-4305-9de0-ab103144f406" />
+<img width="1920" height="1021" alt="Image" src="https://github.com/user-attachments/assets/f86a77b1-ef15-4f72-b782-88652b951c3e" />
+<img width="628" height="478" alt="Image" src="https://github.com/user-attachments/assets/b2578774-9bfa-4a00-962f-78eb82414820" />
+
 
 
 
